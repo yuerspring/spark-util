@@ -26,7 +26,16 @@ object KuduSparksTest {
   import sparksql.implicits._
   val a = new KuduContext(kuduMaster, sc)
   def main(args: Array[String]): Unit = {
-    writetoKudu
+    sparksqlKudu
+  }
+  def sparksqlKudu(){
+     sparksql
+       .read
+       .options(Map("kudu.table" -> "impala::default.rt_rtbreport", "kudu.master" -> kuduMaster))
+       .format("org.apache.kudu.spark.kudu")
+       .load()
+       .registerTempTable("test")
+sparksql.sql("select * from test").show(1000)
   }
   def writetoKudu() {
     val tableName = "impala::default.student"
