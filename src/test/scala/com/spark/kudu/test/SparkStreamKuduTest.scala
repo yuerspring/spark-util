@@ -15,6 +15,7 @@ import org.apache.spark.sql.SQLContext
 import com.spark.kudu.entry.KuduImpalaUtil
 import java.util.Date
 import java.text.SimpleDateFormat
+import org.apache.spark.core.StreamingKafkaContext
 /**
  * @author LMQ
  * @description 将sparkstreaming的数据写进kudu。同时使用impala生成OLAP报表存成kudu。
@@ -37,8 +38,8 @@ object SparkStreamKuduTest {
       "metadata.broker.list" -> brokers,
       "serializer.class" -> "kafka.serializer.StringEncoder",
       "group.id" -> "test",
-      "newgroup.last.earliest" -> "earliest", //如果是新的group id 就从最新还是最旧开始
-      "kafka.last.consum" -> "last")
+      StreamingKafkaContext.WRONG_FROM -> "last",//EARLIEST
+      StreamingKafkaContext.CONSUMER_FROM -> "consum")
     val topics = intopics.split(",").toSet
     val ds = ssc.createDirectStream[(String,String)](kp, topics, msgHandle)
     var count=0L
