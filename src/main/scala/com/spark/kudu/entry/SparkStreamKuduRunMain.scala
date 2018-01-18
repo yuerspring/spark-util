@@ -41,50 +41,12 @@ object SparkStreamKuduRunMain {
     val ds = ssc.createDirectStream[(String, String)](kp, topics, msgHandle)
     var count = 0L
     ds.foreachRDD { rdd =>
-      LOG.info("##### start ##################")
-      /*val delivery = rdd.filter { x =>
-        x._1 == "smartadsdeliverylog" && x._2.split(",")(25).nonEmpty
-      }.count
-      LOG.info("曝光 .." + delivery)
-      val click = rdd.filter { x =>
-        x._1 == "smartadsclicklog" && x._2.split(",")(17).nonEmpty
-      }.count
-      LOG.info("点击 .." + click)*/
-      LOG.info("总数 .." + ( rdd.count))
-      val data = rdd.transtoDF(transPC).toDF()
-      val dfcount = data.count
-      LOG.info("df.." + dfcount)
-      count = count + dfcount
-      kuducontext.insertRows(data, "impala::default.smartadslog")
-      LOG.info("kudu .." + count)
-      val date = new Date()
-      val s = date.getTime
-      val statdate = sim.format(date)
-      LOG.info("##### rt_rtbreport ")
-      KuduImpalaUtil.execute(rt_rtbreport(statdate))
-      LOG.info("##### rt_rtbreport_byhour ")
-      KuduImpalaUtil.execute(rt_rtbreport_byhour(statdate))
-      LOG.info("##### rt_rtbreport_byplan ")
-      KuduImpalaUtil.execute(rt_rtbreport_byplan(statdate))
-      LOG.info("##### rt_rtbreport_byactivity ")
-      KuduImpalaUtil.execute(rt_rtbreport_byactivity(statdate))
-      LOG.info("##### rt_rtbreport_bycreative ")
-      KuduImpalaUtil.execute(rt_rtbreport_bycreative(statdate))
-      LOG.info("##### rt_rtbreport_byplan_unit ")
-      KuduImpalaUtil.execute(rt_rtbreport_byplan_unit(statdate))
-      LOG.info("##### rt_rtbreport_byplan_unit_creative ")
-      KuduImpalaUtil.execute(rt_rtbreport_byplan_unit_creative(statdate))
-      LOG.info("##### rt_rtbreport_byslot_channel_plan ")
-      KuduImpalaUtil.execute(rt_rtbreport_byslot_channel_plan(statdate))
-      LOG.info("##### rt_rtbreport_bydomain_channel_plan ")
-      KuduImpalaUtil.execute(rt_rtbreport_bydomain_channel_plan(statdate))
-      LOG.info("##### rt_rtbreport_byhour_channel_plan ")
-      KuduImpalaUtil.execute(rt_rtbreport_byhour_channel_plan(statdate))
-      LOG.info(s"""time : ${new Date().getTime - s}""")
+      //val df=rdd.toDF 
+      //将数据插入表中default.test
+      //kuducontext.insertRows(df, "impala::default.test")
+      //KuduImpalaUtil.execute(s"""sql """)
       rdd.updateOffsets(kp, "test")
-      LOG.info("##### END ##################")
     }
-
     ssc.start()
     ssc.awaitTermination()
   }

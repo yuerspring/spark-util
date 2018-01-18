@@ -41,38 +41,13 @@ object SparkStreamKuduTest {
       "kafka.last.consum" -> "last")
     val topics = intopics.split(",").toSet
     val ds = ssc.createDirectStream[(String,String)](kp, topics, msgHandle)
-var count=0L
+    var count=0L
     ds.foreachRDD { rdd =>
-      val d=rdd.filter{x=>
-        x._1 match{
-          case"smartadsdeliverylog"=>x._2.split(",")(25).nonEmpty
-          case"smartadsclicklog"=>x._2.split(",")(17).nonEmpty
-          case _=> false
-        }
-        }.count
-      LOG.info("初始满足条件的.."+d )
-      val data = rdd.transtoDF(transPC).toDF()
-      val dfcount=data.count
-      LOG.info("dfcount.."+dfcount )
-      count=count+dfcount
-      LOG.info("目前总数.."+count )
-      kuducontext.insertRows(data, "impala::default.smartadslog")
-      val date=new Date()
-      val s=date.getTime
-      val statdate=sim.format(date)
-      KuduImpalaUtil.execute(rt_rtbreport(statdate))
-      KuduImpalaUtil.execute(rt_rtbreport_byhour(statdate))
-      KuduImpalaUtil.execute(rt_rtbreport_byplan(statdate))
-      KuduImpalaUtil.execute(rt_rtbreport_byactivity(statdate))
-      KuduImpalaUtil.execute(rt_rtbreport_bycreative(statdate))
-      KuduImpalaUtil.execute(rt_rtbreport_byplan_unit(statdate))
-      KuduImpalaUtil.execute(rt_rtbreport_byplan_unit_creative(statdate))
-      KuduImpalaUtil.execute(rt_rtbreport_byslot_channel_plan(statdate))
-      KuduImpalaUtil.execute(rt_rtbreport_bydomain_channel_plan(statdate))
-      KuduImpalaUtil.execute(rt_rtbreport_byhour_channel_plan(statdate))
-      LOG.info(s"""time : ${new Date().getTime - s}""")
+      //val df=rdd.toDF 
+      //将数据插入表中default.test
+      //kuducontext.insertRows(df, "impala::default.test")
+      //KuduImpalaUtil.execute(s"""sql """)
       rdd.updateOffsets(kp, "test")
-      LOG.info(">>>>>>>>>>>>>>>.." )
     }
 
     ssc.start()
